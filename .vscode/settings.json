@@ -1,0 +1,11 @@
+{
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.expand": false,
+    "explorer.fileNesting.patterns": {
+        "Cargo.toml": "Cargo.lock, .gitignore, bacon.toml"
+    },
+
+    "files.exclude": {
+        ".vscode": true
+    }
+}

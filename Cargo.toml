@@ -1,0 +1,28 @@
+[package]
+publish = false
+
+version = "0.1.0"
+license = "MIT or Apache-2.0"
+name = "bevy-game-of-life"
+description = "Conway's game of life in Bevy using a compute shader"
+
+edition = "2021"
+rust-version = "1.69"
+
+repository = "https://github.com/ketrab2004/bevy-game-of-life"
+
+
+[dependencies]
+tokio = { version = "~1.28.2", features = ["full"] }
+color-eyre = "~0.6.2"
+rayon = "~1.7.0"
+bevy = "~0.10.0"
+
+
+# Enable a small amount of optimization in debug mode
+[profile.dev]
+opt-level = 1
+
+# Enable high optimizations for dependencies (incl. Bevy), but not for our code:
+[profile.dev.package."*"]
+opt-level = 3
