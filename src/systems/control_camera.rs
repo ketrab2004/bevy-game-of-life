@@ -5,6 +5,7 @@ use bevy::{
 use crate::resources::controls::Controls;
 
 
+#[allow(clippy::too_many_arguments)]
 pub fn control_camera(
     time: Res<Time>,
     control_settings: Res<Controls>,
