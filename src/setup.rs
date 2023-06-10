@@ -1,20 +1,14 @@
-use bevy::{
-    prelude::*,
-    sprite::MaterialMesh2dBundle,
-    render::camera::ScalingMode
-};
+use bevy::prelude::*;
 
 
 pub fn setup(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>
+    asset_server: Res<AssetServer>
 ) {
     commands.spawn(Camera2dBundle {
         projection: OrthographicProjection {
             near: f32::EPSILON,
             far: 5.,
-            scaling_mode: ScalingMode::FixedVertical(1.), //TODO remove (because of the size_camera system)
             ..default()
         },
         transform: Transform {
@@ -24,13 +18,13 @@ pub fn setup(
         ..default()
     });
 
-    commands.spawn(MaterialMesh2dBundle {
-        mesh: meshes
-            .add(shape::Quad::new(Vec2::ONE).into())
-            .into(),
+    commands.spawn(SpriteBundle {
+        texture: asset_server.load("uv_grid.png"),
 
-        material: materials.add(ColorMaterial::from(Color::CYAN)),
-
+        sprite: Sprite {
+            custom_size: Some(Vec2::ONE),
+            ..default()
+        },
         ..default()
     });
 }
