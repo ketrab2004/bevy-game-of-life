@@ -13,17 +13,6 @@
                 "panel": "shared"
             },
             "problemMatcher": []
-        },
-        {
-            "label": "bacon",
-            "type": "shell",
-            "command": "bacon",
-            "group": "none",
-            "presentation": {
-                "reveal": "always",
-                "panel": "dedicated"
-            },
-            "problemMatcher": []
         }
     ]
 }
