@@ -7,7 +7,15 @@ use bevy::{
             BindGroupDescriptor,
             BindGroupEntry,
             BindingResource,
-            BindGroup
+            BindGroup,
+            BindGroupLayoutDescriptor,
+            BindGroupLayoutEntry,
+            ShaderStages,
+            BindingType,
+            StorageTextureAccess,
+            TextureFormat,
+            TextureViewDimension,
+            BindGroupLayout
         }
     }
 };
@@ -19,6 +27,31 @@ use super::{
 
 #[derive(Resource)]
 pub struct ImageBindGroup(pub(super) BindGroup);
+
+
+pub(super) fn get_bind_group_layout(render_device: &RenderDevice) -> BindGroupLayout {
+    let bind_group_layout_entry = BindGroupLayoutEntry {
+        binding: u32::MAX,
+        visibility: ShaderStages::COMPUTE,
+        ty: BindingType::StorageTexture {
+            access: StorageTextureAccess::ReadWrite,
+            format: TextureFormat::Rgba8Unorm,
+            view_dimension: TextureViewDimension::D2,
+        },
+        count: None,
+    };
+
+    render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
+        label: None,
+        entries: &[BindGroupLayoutEntry {
+            binding: 0,
+            ..bind_group_layout_entry
+        }, BindGroupLayoutEntry {
+            binding: 1,
+            ..bind_group_layout_entry
+        }]
+    })
+}
 
 
 pub fn queue_bind_group(

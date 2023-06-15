@@ -15,9 +15,10 @@ use bevy::{
     }
 };
 use super::{
-    pipeline::Pipeline,
     SIZE,
-    WORKGROUP_SIZE, bind_group::ImageBindGroup
+    WORKGROUP_SIZE,
+    pipeline::Pipeline,
+    bind_groups::ImageBindGroup
 };
 
 

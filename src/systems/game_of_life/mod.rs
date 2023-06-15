@@ -12,7 +12,7 @@ use self::types::ImagesHolder;
 mod types;
 mod pipeline;
 mod node;
-mod bind_group;
+mod bind_groups;
 mod startup;
 
 pub(self) const SIZE: (u32, u32) = (1280, 720);
@@ -29,7 +29,7 @@ impl Plugin for GameOfLifePlugin {
         render_app
             .init_resource::<pipeline::Pipeline>()
             // .init_resource::<types::ImagesHolder>()
-            .add_system(bind_group::queue_bind_group.in_set(RenderSet::Queue));
+            .add_system(bind_groups::queue_bind_group.in_set(RenderSet::Queue));
 
         let mut render_graph = render_app.world.resource_mut::<RenderGraph>();
         render_graph.add_node("game_of_life", node::Node::default());

@@ -4,13 +4,6 @@ use bevy::{
         render_resource::{
             BindGroupLayout,
             CachedComputePipelineId,
-            BindGroupLayoutDescriptor,
-            BindGroupLayoutEntry,
-            ShaderStages,
-            BindingType,
-            StorageTextureAccess,
-            TextureFormat,
-            TextureViewDimension,
             PipelineCache,
             ComputePipelineDescriptor
         },
@@ -18,6 +11,7 @@ use bevy::{
     }
 };
 use std::borrow::Cow;
+use super::bind_groups::get_bind_group_layout;
 
 
 #[derive(Resource, Debug)]
@@ -29,30 +23,7 @@ pub struct Pipeline {
 
 impl FromWorld for Pipeline {
     fn from_world(world: &mut World) -> Self {
-        let bind_group_layout_entry = BindGroupLayoutEntry {
-            binding: u32::MAX,
-            visibility: ShaderStages::COMPUTE,
-            ty: BindingType::StorageTexture {
-                access: StorageTextureAccess::ReadWrite,
-                format: TextureFormat::Rgba8Unorm,
-                view_dimension: TextureViewDimension::D2,
-            },
-            count: None,
-        };
-
-        let texture_bind_group_layout =
-            world
-                .resource::<RenderDevice>()
-                .create_bind_group_layout(&BindGroupLayoutDescriptor {
-                    label: None,
-                    entries: &[BindGroupLayoutEntry {
-                        binding: 0,
-                        ..bind_group_layout_entry
-                    }, BindGroupLayoutEntry {
-                        binding: 1,
-                        ..bind_group_layout_entry
-                    }]
-                });
+        let texture_bind_group_layout = get_bind_group_layout(world.resource::<RenderDevice>());
 
         let shader = world
             .resource::<AssetServer>()
