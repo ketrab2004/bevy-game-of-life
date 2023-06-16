@@ -23,6 +23,7 @@ pub(self) const WORKGROUP_SIZE: (u32, u32) = (8, 8);
 pub struct GameOfLifePlugin {}
 impl Plugin for GameOfLifePlugin {
     fn build(&self, app: &mut App) {
+        app.add_startup_system(startup::startup);
         app.add_plugin(ExtractResourcePlugin::<ImagesHolder>::default());
 
         let render_app = app.sub_app_mut(RenderApp);
@@ -39,8 +40,5 @@ impl Plugin for GameOfLifePlugin {
             "game_of_life",
             bevy::render::main_graph::node::CAMERA_DRIVER,
         );
-
-        app.add_startup_system(startup::startup);
-        //     .add_system(compute::compute);
     }
 }

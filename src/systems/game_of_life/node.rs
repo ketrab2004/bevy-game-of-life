@@ -18,7 +18,7 @@ use super::{
     SIZE,
     WORKGROUP_SIZE,
     pipeline::Pipeline,
-    bind_groups::ImageBindGroup
+    bind_groups::BindGroups
 };
 
 
@@ -66,7 +66,7 @@ impl RenderGraphNode for Node {
             .command_encoder()
             .begin_compute_pass(&ComputePassDescriptor::default());
 
-        pass.set_bind_group(0, &world.resource::<ImageBindGroup>().0, &[]);
+        pass.set_bind_group(0, &world.resource::<BindGroups>().images, &[]);
 
         // select the pipeline based on the current state
         match self.state {
