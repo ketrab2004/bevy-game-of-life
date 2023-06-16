@@ -19,9 +19,7 @@ use bevy::{
         }
     }
 };
-use super::{
-    types::ImagesHolder
-};
+use super::images_holder::ImagesHolder;
 
 
 

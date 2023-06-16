@@ -7,14 +7,11 @@ use bevy::{
         extract_resource::ExtractResourcePlugin
     }
 };
-use self::types::ImagesHolder;
 
-mod types;
-mod startup;
 
+mod images_holder;
 mod bind_groups;
 mod pipeline;
-
 mod node;
 
 pub(self) const SIZE: (u32, u32) = (1280, 720);
@@ -25,8 +22,8 @@ pub(self) const WORKGROUP_SIZE: (u32, u32) = (8, 8);
 pub struct GameOfLifePlugin {}
 impl Plugin for GameOfLifePlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(startup::startup);
-        app.add_plugin(ExtractResourcePlugin::<ImagesHolder>::default());
+        app.init_resource::<images_holder::ImagesHolder>()
+            .add_plugin(ExtractResourcePlugin::<images_holder::ImagesHolder>::default());
 
 
         let render_app = app.sub_app_mut(RenderApp);
