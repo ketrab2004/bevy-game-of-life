@@ -2,12 +2,10 @@ use bevy::{
     prelude::*,
     render::{
         render_resource::{
-            BindGroupLayout,
             CachedComputePipelineId,
             PipelineCache,
             ComputePipelineDescriptor
-        },
-        renderer::RenderDevice
+        }
     }
 };
 use std::borrow::Cow;
@@ -22,7 +20,7 @@ pub struct Pipeline {
 
 impl FromWorld for Pipeline {
     fn from_world(world: &mut World) -> Self {
-        let bind_group_layouts = BindGroupLayouts::new(world);
+        let bind_group_layouts = world.get_resource::<BindGroupLayouts>().unwrap();
 
         let shader = world
             .resource::<AssetServer>()
@@ -49,8 +47,6 @@ impl FromWorld for Pipeline {
             entry_point: Cow::from("update"),
         });
 
-
-        world.insert_resource(bind_group_layouts);
 
         Pipeline {
             init_pipeline,

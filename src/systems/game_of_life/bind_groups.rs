@@ -20,8 +20,7 @@ use bevy::{
     }
 };
 use super::{
-    types::ImagesHolder,
-    pipeline::Pipeline
+    types::ImagesHolder
 };
 
 
@@ -31,8 +30,8 @@ pub struct BindGroupLayouts {
     pub images: BindGroupLayout
 }
 
-impl BindGroupLayouts {
-    pub fn new(world: &World) -> Self {
+impl FromWorld for BindGroupLayouts {
+    fn from_world(world: &mut World) -> Self {
         let render_device = world.get_resource::<RenderDevice>().unwrap();
 
         let image_layout_template = BindGroupLayoutEntry {
@@ -68,8 +67,8 @@ pub struct BindGroups {
     pub images: BindGroup
 }
 
-impl BindGroups {
-    pub fn new(world: &World) -> Self {
+impl FromWorld for BindGroups {
+    fn from_world(world: &mut World) -> Self {
         let gpu_images = world.get_resource::<RenderAssets<Image>>().unwrap();
         let render_device = world.get_resource::<RenderDevice>().unwrap();
 
@@ -93,9 +92,6 @@ impl BindGroups {
     }
 }
 
-pub fn queue_bind_group(
-    mut commands: Commands,
-    world: &World
-) {
-    commands.insert_resource(BindGroups::new(world));
+pub fn queue_bind_groups( mut commands: Commands ) {
+    commands.init_resource::<BindGroups>()
 }
