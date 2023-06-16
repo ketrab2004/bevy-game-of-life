@@ -23,21 +23,12 @@ fn count_alive(location: vec2<i32>, use_texture_a: bool) -> f32 {
         + is_alive(location,  1,  1, use_texture_a);
 }
 
-@compute @workgroup_size(8, 8, 1)
-fn init(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
-    textureStore(
-        texture_a,
-        vec2<i32>(i32(invocation_id.x), i32(invocation_id.y)),
-        vec2<f32>(f32(invocation_id.x + invocation_id.y) * 0.12345, 0.).xxxx
-    );
-}
-
 
 @compute @workgroup_size(8, 8, 1)
 fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     let location = vec2<i32>(i32(invocation_id.x), i32(invocation_id.y));
 
-    let alive_count = count_alive(location, true);
+    let alive_count = floor(count_alive(location, true) + .5);
 
     var alive = alive_count == 3.; // dead or alive with 3 neighbours = alive
     alive = alive || (alive_count == 2. && bool(is_alive(location, 0, 0, true))); // 2 neighbours and is alive = stays alive

@@ -44,7 +44,7 @@ impl RenderGraphNode for Node {
         // if the corresponding pipeline has loaded, transition to the next stage
         match self.state {
             NodeState::Loading => {
-                if let CachedPipelineState::Ok(_) = pipeline_cache.get_compute_pipeline_state(pipeline.init_pipeline)
+                if let CachedPipelineState::Ok(_) = pipeline_cache.get_compute_pipeline_state(pipeline.update_pipeline)
                 {
                     self.state = NodeState::Update;
                 }

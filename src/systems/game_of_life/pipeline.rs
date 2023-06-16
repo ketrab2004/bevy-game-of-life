@@ -14,8 +14,7 @@ use super::bind_groups::BindGroupLayouts;
 
 #[derive(Resource, Debug)]
 pub struct Pipeline {
-    pub init_pipeline: CachedComputePipelineId,
-    pub update_pipeline: CachedComputePipelineId,
+    pub update_pipeline: CachedComputePipelineId
 }
 
 impl FromWorld for Pipeline {
@@ -29,15 +28,6 @@ impl FromWorld for Pipeline {
         let pipeline_cache = world.resource::<PipelineCache>();
 
 
-        let init_pipeline = pipeline_cache.queue_compute_pipeline(ComputePipelineDescriptor {
-            label: None,
-            layout: vec![bind_group_layouts.images.clone()],
-            push_constant_ranges: Vec::new(),
-            shader: shader.clone(),
-            shader_defs: vec![],
-            entry_point: Cow::from("init"),
-        });
-
         let update_pipeline = pipeline_cache.queue_compute_pipeline(ComputePipelineDescriptor {
             label: None,
             layout: vec![bind_group_layouts.images.clone()],
@@ -49,8 +39,7 @@ impl FromWorld for Pipeline {
 
 
         Pipeline {
-            init_pipeline,
-            update_pipeline,
+            update_pipeline
         }
     }
 }
