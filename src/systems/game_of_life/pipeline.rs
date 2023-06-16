@@ -29,8 +29,11 @@ impl FromWorld for Pipeline {
 
 
         let update_pipeline = pipeline_cache.queue_compute_pipeline(ComputePipelineDescriptor {
-            label: None,
-            layout: vec![bind_group_layouts.images.clone()],
+            label: Some(Cow::from("update pipeline")),
+            layout: vec![
+                bind_group_layouts.images.clone(),
+                bind_group_layouts.current_image.clone()
+            ],
             push_constant_ranges: Vec::new(),
             shader,
             shader_defs: vec![],

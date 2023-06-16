@@ -15,7 +15,9 @@ use bevy::{
             StorageTextureAccess,
             TextureFormat,
             TextureViewDimension,
-            BindGroupLayout
+            BindGroupLayout,
+            BufferBindingType,
+            BufferInitDescriptor, BufferUsages
         }
     }
 };
@@ -25,7 +27,8 @@ use super::images_holder::ImagesHolder;
 
 #[derive(Resource, Debug)]
 pub struct BindGroupLayouts {
-    pub images: BindGroupLayout
+    pub images: BindGroupLayout,
+    pub current_image: BindGroupLayout
 }
 
 impl FromWorld for BindGroupLayouts {
@@ -45,13 +48,26 @@ impl FromWorld for BindGroupLayouts {
 
         Self {
             images: render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-                label: None,
+                label: Some("Binding group 0 layout"),
                 entries: &[BindGroupLayoutEntry {
                     binding: 0,
                     ..image_layout_template
                 }, BindGroupLayoutEntry {
                     binding: 1,
                     ..image_layout_template
+                }]
+            }),
+            current_image: render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
+                label: Some("Binding group 1 layout"),
+                entries: &[BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: ShaderStages::COMPUTE,
+                    ty: BindingType::Buffer {
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                        ty: BufferBindingType::Uniform
+                    },
+                    count: None
                 }]
             })
         }
@@ -62,7 +78,8 @@ impl FromWorld for BindGroupLayouts {
 
 #[derive(Resource, Debug)]
 pub struct BindGroups {
-    pub images: BindGroup
+    pub images: BindGroup,
+    pub current_image: BindGroup
 }
 
 impl FromWorld for BindGroups {
@@ -76,7 +93,7 @@ impl FromWorld for BindGroups {
 
         Self {
             images: render_device.create_bind_group(&BindGroupDescriptor {
-                label: None,
+                label: Some("Binding group 0"),
                 layout: &bind_group_layouts.images,
                 entries: &[BindGroupEntry {
                     binding: 0,
@@ -85,6 +102,18 @@ impl FromWorld for BindGroups {
                     binding: 1,
                     resource: BindingResource::TextureView(&gpu_images[&image_holder.b].texture_view)
                 }],
+            }),
+            current_image: render_device.create_bind_group(&BindGroupDescriptor {
+                label: Some("Binding group 1"),
+                layout: &bind_group_layouts.current_image,
+                entries: &[BindGroupEntry {
+                    binding: 0,
+                    resource: BindingResource::Buffer(render_device.create_buffer_with_data(&BufferInitDescriptor {
+                        label: Some("binding 0"),
+                        contents: &(image_holder.state as u32).to_be_bytes(),
+                        usage: BufferUsages::UNIFORM
+                    }).as_entire_buffer_binding())
+                }]
             })
         }
     }

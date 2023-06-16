@@ -61,12 +61,14 @@ impl RenderGraphNode for Node {
     ) -> Result<(), NodeRunError> {
         let pipeline_cache = world.resource::<PipelineCache>();
         let pipeline = world.resource::<Pipeline>();
+        let bind_groups = world.resource::<BindGroups>();
 
         let mut pass = render_context
             .command_encoder()
             .begin_compute_pass(&ComputePassDescriptor::default());
 
-        pass.set_bind_group(0, &world.resource::<BindGroups>().images, &[]);
+        pass.set_bind_group(0, &bind_groups.images, &[]);
+        pass.set_bind_group(1, &bind_groups.current_image, &[]);
 
         // select the pipeline based on the current state
         match self.state {
