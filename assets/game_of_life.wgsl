@@ -1,5 +1,5 @@
 @group(0) @binding(0)
-var texture_a: texture_storage_2d<rgba8unorm, read_write>; //TODO change to f32?
+var texture_a: texture_storage_2d<rgba8unorm, read_write>;
 @group(0) @binding(1)
 var texture_b: texture_storage_2d<rgba8unorm, read_write>;
 
@@ -36,7 +36,7 @@ fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     var alive = alive_count == 3.; // dead or alive with 3 neighbours = alive
     alive = alive || (alive_count == 2. && bool(is_alive(location, 0, 0))); // 2 neighbours and is alive = stays alive
 
-    let out = vec4<f32>(f32(alive));
+    let out = vec4<f32>(vec3<f32>(f32(alive)), 1.);
 
 
     storageBarrier();

@@ -22,6 +22,8 @@ use super::{
 };
 
 
+pub const NODE_ID: &str = "game_of_life";
+
 #[derive(Debug, Default)]
 pub enum NodeState {
     #[default]
