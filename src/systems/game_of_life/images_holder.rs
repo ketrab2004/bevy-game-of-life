@@ -14,10 +14,14 @@ use bevy::{
         texture::ImageSampler
     }
 };
+use strum_macros::{
+    EnumIter,
+    EnumCount
+};
 use super::SIZE;
 
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, EnumIter, EnumCount)]
 pub enum ImagesHolderState {
     ImageA,
     ImageB

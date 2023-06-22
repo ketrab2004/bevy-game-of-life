@@ -16,6 +16,8 @@ repository = "https://github.com/ketrab2004/bevy-game-of-life"
 tokio = { version = "~1.28.2", features = ["full"] }
 color-eyre = "~0.6.2"
 rayon = "~1.7.0"
+strum = "~0.25.0"
+strum_macros = "~0.25.0"
 bevy = "~0.10.0"
 
 
