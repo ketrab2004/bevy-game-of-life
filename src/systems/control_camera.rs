@@ -20,7 +20,7 @@ pub fn control_camera(
     let delta = time.delta_seconds();
     let ctrl_pressed = keys.pressed(KeyCode::LControl) || keys.pressed(KeyCode::RControl);
 
-    let window = windows.iter().next().expect("Failed to find a window");
+    let window = windows.single();
 
 
     let movement = {
