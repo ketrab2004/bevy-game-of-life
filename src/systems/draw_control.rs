@@ -2,19 +2,16 @@ use bevy::{
     prelude::*,
     window::PrimaryWindow
 };
+use super::game_of_life::actions_holder::{
+    ActionType,
+    ActionsHolder
+};
 use super::game_of_life::images_holder::ImagesHolder;
 
 
-#[derive(PartialEq, Eq, Debug)]
-enum DrawAction {
-    None,
-    Add,
-    Remove
-}
-
 #[allow(clippy::too_many_arguments)]
 pub fn draw_control(
-    // mut commands: Commands,
+    mut actions_holder: ResMut<ActionsHolder>,
 
     keys: Res<Input<KeyCode>>,
     buttons: Res<Input<MouseButton>>,
@@ -26,21 +23,16 @@ pub fn draw_control(
     cameras: Query<(&Transform, &OrthographicProjection), With<Camera2d>>,
     frames: Query<(&Transform, &Sprite)>
 ) {
-    let action = {
-        if buttons.pressed(MouseButton::Left) {
-            DrawAction::Add
-        } else if buttons.pressed(MouseButton::Right) {
-            DrawAction::Remove
-        } else {
-            DrawAction::None
-        }
+    let action = if buttons.pressed(MouseButton::Left) {
+        ActionType::Add
+    } else if buttons.pressed(MouseButton::Right) {
+        ActionType::Remove
+    } else {
+        return
     };
 
 
     if keys.pressed(KeyCode::LAlt) {
-        return
-    }
-    if action == DrawAction::None {
         return
     }
 
@@ -59,7 +51,7 @@ pub fn draw_control(
     }
 
 
-    let min_screen_axis = screen_size.x.min(screen_size.y);
+    let min_screen_axis = screen_size.min_element();
     let screen_pos = window_mouse_pos / Vec2::splat(min_screen_axis);
 
     let (camera_transform, camera_projection) = cameras.iter().next().unwrap();
@@ -88,6 +80,5 @@ pub fn draw_control(
     let texture_pos = ((hit_pos + Vec2::splat(0.5)) * texture_size).floor();
 
 
-    dbg!(texture_pos);
-    //TODO send pos to gpu
+    actions_holder.push(action, texture_pos)
 }

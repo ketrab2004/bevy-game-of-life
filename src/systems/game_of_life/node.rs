@@ -26,7 +26,8 @@ use super::{
     images_holder::{
         ImagesHolder,
         ImagesHolderState
-    }
+    },
+    actions_holder::ActionsHolder
 };
 
 
@@ -96,10 +97,18 @@ impl RenderGraphNode for Node {
         let pipeline = world.resource::<Pipeline>();
         let bind_groups = world.resource::<BindGroups>();
         let images_holder = world.resource::<ImagesHolder>();
+        let actions_holder = world.resource::<ActionsHolder>();
 
         // select the pipeline based on the current state
         match self.state {
             NodeState::Update => {
+
+                if !actions_holder.0.is_empty() {
+                    //TODO send actions to gpu to apply them
+                    dbg!(&actions_holder.0);
+                }
+
+
                 if self.timer.just_finished() {
                     let mut pass = render_context
                         .command_encoder()

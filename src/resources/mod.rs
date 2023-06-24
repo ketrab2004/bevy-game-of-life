@@ -1,4 +1,4 @@
-use bevy::prelude::{ Plugin, App };
+use bevy::prelude::*;
 
 pub mod controls;
 

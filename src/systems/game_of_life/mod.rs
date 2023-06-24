@@ -9,6 +9,7 @@ use bevy::{
 };
 
 
+pub mod actions_holder;
 pub mod images_holder;
 mod bind_groups;
 mod pipeline;
@@ -23,7 +24,11 @@ pub struct GameOfLifePlugin {}
 impl Plugin for GameOfLifePlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<images_holder::ImagesHolder>()
-            .add_plugin(ExtractResourcePlugin::<images_holder::ImagesHolder>::default());
+            .add_plugin(ExtractResourcePlugin::<images_holder::ImagesHolder>::default())
+
+            .init_resource::<actions_holder::ActionsHolder>()
+            .add_plugin(ExtractResourcePlugin::<actions_holder::ActionsHolder>::default())
+            .add_system(actions_holder::actions_holder_cleaner.in_set(RenderSet::Cleanup));
 
 
         let render_app = app.sub_app_mut(RenderApp);
