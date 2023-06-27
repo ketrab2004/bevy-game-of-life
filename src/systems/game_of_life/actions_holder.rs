@@ -1,22 +1,25 @@
 use bevy::{
     prelude::*,
-    render::extract_resource::ExtractResource
+    render::{
+        extract_resource::ExtractResource,
+        render_resource::AsBindGroup
+    }
 };
 
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 #[repr(C)]
 pub enum ActionType {
-    Add,
-    Remove
+    Add = 0,
+    Remove = 1
 }
 
 
 #[derive(Clone, Debug)]
 #[repr(C)]
 pub struct Action {
-    action: ActionType,
-    pos: Vec2
+    pub action: ActionType,
+    pub pos: Vec2
 }
 
 

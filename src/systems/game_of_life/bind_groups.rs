@@ -18,13 +18,17 @@ use bevy::{
             BindGroupLayout,
             BufferBindingType,
             BufferInitDescriptor,
-            BufferUsages
+            BufferUsages,
+            BufferBinding
         }
     }
 };
-use super::images_holder::{
-    ImagesHolder,
-    ImagesHolderState
+use super::{
+    images_holder::{
+        ImagesHolder,
+        ImagesHolderState
+    },
+    actions_holder::Action
 };
 
 
@@ -32,7 +36,8 @@ use super::images_holder::{
 #[derive(Resource, Debug)]
 pub struct BindGroupLayouts {
     pub images: BindGroupLayout,
-    pub current_image: BindGroupLayout
+    pub current_image: BindGroupLayout,
+    // pub actions: BindGroupLayout
 }
 
 impl FromWorld for BindGroupLayouts {
@@ -52,7 +57,7 @@ impl FromWorld for BindGroupLayouts {
 
         Self {
             images: render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-                label: Some("Binding group 0 layout"),
+                label: None,
                 entries: &[BindGroupLayoutEntry {
                     binding: 0,
                     ..image_layout_template
@@ -62,7 +67,7 @@ impl FromWorld for BindGroupLayouts {
                 }]
             }),
             current_image: render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-                label: Some("Binding group 1 layout"),
+                label: None,
                 entries: &[BindGroupLayoutEntry {
                     binding: 0,
                     visibility: ShaderStages::COMPUTE,
@@ -73,7 +78,22 @@ impl FromWorld for BindGroupLayouts {
                     },
                     count: None
                 }]
-            })
+            }),
+            // actions: render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
+            //     label: None,
+            //     entries: &[BindGroupLayoutEntry {
+            //         binding: 0,
+            //         visibility: ShaderStages::COMPUTE,
+            //         ty: BindingType::Buffer {
+            //             has_dynamic_offset: true,
+            //             min_binding_size: None,
+            //             ty: BufferBindingType::Storage {
+            //                 read_only: true
+            //             }
+            //         },
+            //         count: Some(std::num::NonZeroU32::new(1).unwrap())
+            //     }]
+            // })
         }
     }
 }
@@ -94,6 +114,36 @@ impl BindGroups {
             ImagesHolderState::ImageB => &self.current_image_b
         }
     }
+
+    // pub fn get_actions_bind_group(world: &World, actions: Vec<Action>) -> BindGroup {
+    //     let render_device = world.get_resource::<RenderDevice>().unwrap();
+    //     let bind_group_layouts = world.get_resource::<BindGroupLayouts>().unwrap();
+
+    //     render_device.create_bind_group(&BindGroupDescriptor {
+    //         label: None,
+    //         layout: &bind_group_layouts.actions,
+    //         entries: &[BindGroupEntry {
+    //             binding: 0,
+    //             resource: BindingResource::BufferArray(&actions.iter().map(|action| {
+    //                 let data = [
+    //                     (action.action as u32).to_be_bytes().as_slice(),
+    //                     action.pos.x.to_be_bytes().as_slice(),
+    //                     action.pos.y.to_be_bytes().as_slice()
+    //                 ].concat().as_slice();
+
+    //                 BufferBinding {
+    //                     buffer: &render_device.create_buffer_with_data(&BufferInitDescriptor {
+    //                         label: None,
+    //                         contents: data,
+    //                         usage: BufferUsages::STORAGE
+    //                     }),
+    //                     offset: 0,
+    //                     size: std::num::NonZeroU64::new(data.len() as u64)
+    //                 }
+    //             }).collect())
+    //         }]
+    //     })
+    // }
 }
 
 impl FromWorld for BindGroups {
@@ -107,7 +157,7 @@ impl FromWorld for BindGroups {
 
         Self {
             images: render_device.create_bind_group(&BindGroupDescriptor {
-                label: Some("Binding group 0"),
+                label: None,
                 layout: &bind_group_layouts.images,
                 entries: &[BindGroupEntry {
                     binding: 0,
@@ -118,24 +168,24 @@ impl FromWorld for BindGroups {
                 }],
             }),
             current_image_a: render_device.create_bind_group(&BindGroupDescriptor {
-                label: Some("Binding group 1 (ImageA)"),
+                label: None,
                 layout: &bind_group_layouts.current_image,
                 entries: &[BindGroupEntry {
                     binding: 0,
                     resource: BindingResource::Buffer(render_device.create_buffer_with_data(&BufferInitDescriptor {
-                        label: Some("binding 0"),
+                        label: None,
                         contents: &(ImagesHolderState::ImageA as u32).to_be_bytes(),
                         usage: BufferUsages::UNIFORM
                     }).as_entire_buffer_binding())
                 }]
             }),
             current_image_b: render_device.create_bind_group(&BindGroupDescriptor {
-                label: Some("Binding group 1 (ImageB)"),
+                label: None,
                 layout: &bind_group_layouts.current_image,
                 entries: &[BindGroupEntry {
                     binding: 0,
                     resource: BindingResource::Buffer(render_device.create_buffer_with_data(&BufferInitDescriptor {
-                        label: Some("binding 0"),
+                        label: None,
                         contents: &(ImagesHolderState::ImageB as u32).to_be_bytes(),
                         usage: BufferUsages::UNIFORM
                     }).as_entire_buffer_binding())

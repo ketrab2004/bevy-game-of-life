@@ -64,8 +64,17 @@ impl RenderGraphNode for Node {
                 let pipeline = world.resource::<Pipeline>();
                 let pipeline_cache = world.resource::<PipelineCache>();
 
-                if let CachedPipelineState::Ok(_) = pipeline_cache.get_compute_pipeline_state(pipeline.update_pipeline)
-                {
+                let mut all_loaded = true;
+                for id in pipeline.get_pipelines_vec().iter() {
+                    let state = pipeline_cache.get_compute_pipeline_state(id.to_owned());
+
+                    let CachedPipelineState::Ok(_) = state else {
+                        all_loaded = false;
+                        break;
+                    };
+                }
+
+                if all_loaded {
                     self.state = NodeState::Update;
                 }
             }
@@ -93,19 +102,31 @@ impl RenderGraphNode for Node {
         render_context: &mut RenderContext,
         world: &World,
     ) -> Result<(), NodeRunError> {
-        let pipeline_cache = world.resource::<PipelineCache>();
-        let pipeline = world.resource::<Pipeline>();
-        let bind_groups = world.resource::<BindGroups>();
-        let images_holder = world.resource::<ImagesHolder>();
-        let actions_holder = world.resource::<ActionsHolder>();
-
         // select the pipeline based on the current state
         match self.state {
             NodeState::Update => {
+                let pipeline_cache = world.resource::<PipelineCache>();
+                let pipeline = world.resource::<Pipeline>();
+                let bind_groups = world.resource::<BindGroups>();
+                let images_holder = world.resource::<ImagesHolder>();
+                let actions_holder = world.resource::<ActionsHolder>();
+
 
                 if !actions_holder.0.is_empty() {
-                    //TODO send actions to gpu to apply them
-                    dbg!(&actions_holder.0);
+                    // let mut pass = render_context
+                    //     .command_encoder()
+                    //     .begin_compute_pass(&ComputePassDescriptor::default());
+
+                    // pass.set_bind_group(0, &bind_groups.images, &[]);
+                    // pass.set_bind_group(1, bind_groups.get_current_image_from_state(images_holder.state), &[]);
+                    // pass.set_bind_group(2, bind_groups.get, &[]);
+
+                    // let input_pipeline = pipeline_cache
+                    //     .get_compute_pipeline(pipeline.input_pipeline)
+                    //     .unwrap();
+                    // pass.set_pipeline(input_pipeline);
+
+                    // pass.dispatch_workgroups(SIZE.0 / WORKGROUP_SIZE.0, SIZE.1 / WORKGROUP_SIZE.1, 1);
                 }
 
 
@@ -114,10 +135,8 @@ impl RenderGraphNode for Node {
                         .command_encoder()
                         .begin_compute_pass(&ComputePassDescriptor::default());
 
-                    let current_image_state = images_holder.state;
-
                     pass.set_bind_group(0, &bind_groups.images, &[]);
-                    pass.set_bind_group(1, bind_groups.get_current_image_from_state(current_image_state), &[]);
+                    pass.set_bind_group(1, bind_groups.get_current_image_from_state(images_holder.state), &[]);
 
                     let update_pipeline = pipeline_cache
                         .get_compute_pipeline(pipeline.update_pipeline)
