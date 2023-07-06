@@ -112,25 +112,28 @@ impl RenderGraphNode for Node {
                 let actions_holder = world.resource::<ActionsHolder>();
 
 
-                if !actions_holder.0.is_empty() {
-                    // let mut pass = render_context
-                    //     .command_encoder()
-                    //     .begin_compute_pass(&ComputePassDescriptor::default());
+                #[warn(clippy::overly_complex_bool_expr)] //TODO fix issue with input pipeline and remove && false
+                if !actions_holder.actions.is_empty() && false {
+                    info!("executing input pipeline!  🖱️");
+                    let mut pass = render_context
+                        .command_encoder()
+                        .begin_compute_pass(&ComputePassDescriptor::default());
 
-                    // pass.set_bind_group(0, &bind_groups.images, &[]);
-                    // pass.set_bind_group(1, bind_groups.get_current_image_from_state(images_holder.state), &[]);
-                    // pass.set_bind_group(2, bind_groups.get, &[]);
+                    pass.set_bind_group(0, &bind_groups.images, &[]);
+                    pass.set_bind_group(1, bind_groups.get_current_image_from_state(images_holder.state), &[]);
+                    pass.set_bind_group(2, &bind_groups.actions.bind_group, &[]);
 
-                    // let input_pipeline = pipeline_cache
-                    //     .get_compute_pipeline(pipeline.input_pipeline)
-                    //     .unwrap();
-                    // pass.set_pipeline(input_pipeline);
+                    let input_pipeline = pipeline_cache
+                        .get_compute_pipeline(pipeline.input_pipeline)
+                        .unwrap();
+                    pass.set_pipeline(input_pipeline);
 
-                    // pass.dispatch_workgroups(SIZE.0 / WORKGROUP_SIZE.0, SIZE.1 / WORKGROUP_SIZE.1, 1);
+                    pass.dispatch_workgroups(SIZE.0 / WORKGROUP_SIZE.0, SIZE.1 / WORKGROUP_SIZE.1, 1);
                 }
 
 
                 if self.timer.just_finished() {
+                    info!("executing update pipeline! ⬆️");
                     let mut pass = render_context
                         .command_encoder()
                         .begin_compute_pass(&ComputePassDescriptor::default());

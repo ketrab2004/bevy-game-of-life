@@ -14,7 +14,7 @@ use super::bind_groups::BindGroupLayouts;
 
 #[derive(Resource, Debug)]
 pub struct Pipeline {
-    // pub input_pipeline: CachedComputePipelineId,
+    pub input_pipeline: CachedComputePipelineId,
     pub update_pipeline: CachedComputePipelineId
 }
 impl Pipeline {
@@ -32,24 +32,24 @@ impl FromWorld for Pipeline {
 
         let asset_server = world.resource::<AssetServer>();
 
-        // let input_shader = asset_server.load("add_inputs.wgsl");
+        let input_shader = asset_server.load("add_inputs.wgsl");
         let main_shader = asset_server.load("game_of_life.wgsl");
 
         let pipeline_cache = world.resource::<PipelineCache>();
 
 
-        // let input_pipeline = pipeline_cache.queue_compute_pipeline(ComputePipelineDescriptor {
-        //     label: Some(Cow::from("input pipeline")),
-        //     layout: vec![
-        //         bind_group_layouts.images.clone(),
-        //         bind_group_layouts.current_image.clone(),
-        //         bind_group_layouts.actions.clone()
-        //     ],
-        //     push_constant_ranges: Vec::new(),
-        //     shader: input_shader,
-        //     shader_defs: vec![],
-        //     entry_point: Cow::from("add_inputs"),
-        // });
+        let input_pipeline = pipeline_cache.queue_compute_pipeline(ComputePipelineDescriptor {
+            label: Some(Cow::from("input pipeline")),
+            layout: vec![
+                bind_group_layouts.images.clone(),
+                bind_group_layouts.current_image.clone(),
+                bind_group_layouts.actions.clone()
+            ],
+            push_constant_ranges: Vec::new(),
+            shader: input_shader,
+            shader_defs: vec![],
+            entry_point: Cow::from("add_inputs"),
+        });
 
         let update_pipeline = pipeline_cache.queue_compute_pipeline(ComputePipelineDescriptor {
             label: Some(Cow::from("update pipeline")),
@@ -65,7 +65,7 @@ impl FromWorld for Pipeline {
 
 
         Pipeline {
-            // input_pipeline,
+            input_pipeline,
             update_pipeline
         }
     }

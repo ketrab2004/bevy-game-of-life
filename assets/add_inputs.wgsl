@@ -7,20 +7,19 @@ var texture_b: texture_storage_2d<rgba8unorm, read_write>;
 var<uniform> current_texture: u32;
 
 struct Action {
-    typ: u32;
-    pos: vec2<f32>;
+    typ: u32,
+    pos: vec2<f32>
 }
 
-@group(2) @binding (0)
+@group(2) @binding(0)
 var<storage, read> input_actions: array<Action>;
 
 
 fn action_type_to_colour(action: Action) -> vec4<f32> {
-    select(vec4<f32>(1.), vec4<f32>(0., 0., 0., 1.), action.typ == u32(0))
+    return select(vec4<f32>(1.), vec4<f32>(0., 0., 0., 1.), action.typ == 0u);
 }
 
-fn apply_action_at_location(action: Action, location: vec2<f32>) {
-    let location = vec2<i32>(location.xy);
+fn apply_action_at_location(action: Action, location: vec2<i32>) {
     let colour = action_type_to_colour(action);
 
     storageBarrier();
@@ -34,7 +33,8 @@ fn apply_action_at_location(action: Action, location: vec2<f32>) {
 
 @compute @workgroup_size(8, 8, 1)
 fn add_inputs(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
-    let location = vec2<f32>(invocation_id.xy);
+    let location_to_write_at = vec2<i32>(invocation_id.xy);
+    let location_to_compare = vec2<f32>(invocation_id.xy);
 
     let length = arrayLength(&input_actions);
 
@@ -42,8 +42,8 @@ fn add_inputs(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     for (var i = length; i >= 0u; i--) {
         let action = input_actions[i];
 
-        if all(action.pos == location) {
-            apply_action_at_location(action, location);
+        if all(action.pos == location_to_compare) {
+            apply_action_at_location(action, location_to_write_at);
 
             break
         }

@@ -19,8 +19,9 @@ use bevy::{
             BufferBindingType,
             BufferInitDescriptor,
             BufferUsages,
-            BufferBinding
-        }
+            AsBindGroup,
+            PreparedBindGroup
+        }, texture::FallbackImage
     }
 };
 use super::{
@@ -28,7 +29,7 @@ use super::{
         ImagesHolder,
         ImagesHolderState
     },
-    actions_holder::Action
+    actions_holder::ActionsHolder
 };
 
 
@@ -37,7 +38,7 @@ use super::{
 pub struct BindGroupLayouts {
     pub images: BindGroupLayout,
     pub current_image: BindGroupLayout,
-    // pub actions: BindGroupLayout
+    pub actions: BindGroupLayout
 }
 
 impl FromWorld for BindGroupLayouts {
@@ -79,6 +80,7 @@ impl FromWorld for BindGroupLayouts {
                     count: None
                 }]
             }),
+            actions: ActionsHolder::bind_group_layout(render_device)
             // actions: render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
             //     label: None,
             //     entries: &[BindGroupLayoutEntry {
@@ -100,11 +102,12 @@ impl FromWorld for BindGroupLayouts {
 
 
 
-#[derive(Resource, Debug)]
+#[derive(Resource)]
 pub struct BindGroups {
     pub images: BindGroup,
     current_image_a: BindGroup,
-    current_image_b: BindGroup
+    current_image_b: BindGroup,
+    pub actions: PreparedBindGroup<()>
 }
 
 impl BindGroups {
@@ -149,10 +152,12 @@ impl BindGroups {
 impl FromWorld for BindGroups {
     fn from_world(world: &mut World) -> Self {
         let gpu_images = world.get_resource::<RenderAssets<Image>>().unwrap();
+        let fallback_image = world.get_resource::<FallbackImage>().unwrap();
         let render_device = world.get_resource::<RenderDevice>().unwrap();
 
         let bind_group_layouts = world.get_resource::<BindGroupLayouts>().unwrap();
         let image_holder = world.get_resource::<ImagesHolder>().unwrap();
+        let actions_holder = world.get_resource::<ActionsHolder>().unwrap();
 
 
         Self {
@@ -190,7 +195,14 @@ impl FromWorld for BindGroups {
                         usage: BufferUsages::UNIFORM
                     }).as_entire_buffer_binding())
                 }]
-            })
+            }),
+            actions: actions_holder.as_bind_group(
+                &bind_group_layouts.actions,
+                render_device,
+                gpu_images,
+                fallback_image
+            // error does not implement Debug nor Display, so can't use .expect()
+            ).unwrap_or_else(|_| { panic!("failed to create bind group for the actions_holder") })
         }
     }
 }
