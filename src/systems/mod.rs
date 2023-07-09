@@ -6,6 +6,8 @@ mod control_camera;
 mod game_of_life;
 mod update_image;
 mod draw_control;
+#[cfg(debug_assertions)]
+mod debug_systems;
 
 
 pub struct SystemsPlugin {}
@@ -18,5 +20,8 @@ impl Plugin for SystemsPlugin {
             .add_plugin(game_of_life::GameOfLifePlugin {})
             .add_system(update_image::update_image)
             .add_system(draw_control::draw_control);
+
+        #[cfg(debug_assertions)]
+        app.add_plugin(debug_systems::Debugger {});
     }
 }

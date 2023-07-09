@@ -20,7 +20,7 @@ pub struct Pipeline {
 impl Pipeline {
     pub fn get_pipelines_vec(&self) -> Vec<CachedComputePipelineId> {
         vec!(
-            // self.input_pipeline,
+            self.input_pipeline,
             self.update_pipeline
         )
     }

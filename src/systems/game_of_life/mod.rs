@@ -44,7 +44,7 @@ impl Plugin for GameOfLifePlugin {
         // make node run before camera render
         render_graph.add_node_edge(
             node::NODE_ID,
-            bevy::render::main_graph::node::CAMERA_DRIVER,
+            bevy::render::main_graph::node::CAMERA_DRIVER
         );
     }
 }

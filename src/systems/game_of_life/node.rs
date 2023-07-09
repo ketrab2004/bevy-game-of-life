@@ -58,20 +58,26 @@ impl Default for Node {
 
 impl RenderGraphNode for Node {
     fn update(&mut self, world: &mut World) {
-        // if the corresponding pipeline has loaded, transition to the next stage
+        // if the corresponding pipelines has loaded, transition to the next stage
         match self.state {
             NodeState::Loading => {
                 let pipeline = world.resource::<Pipeline>();
                 let pipeline_cache = world.resource::<PipelineCache>();
 
                 let mut all_loaded = true;
-                for id in pipeline.get_pipelines_vec().iter() {
+                for (i, id) in pipeline.get_pipelines_vec().iter().enumerate() {
                     let state = pipeline_cache.get_compute_pipeline_state(id.to_owned());
 
-                    let CachedPipelineState::Ok(_) = state else {
-                        all_loaded = false;
-                        break;
-                    };
+                    match state {
+                        CachedPipelineState::Ok(_) => (),
+                        CachedPipelineState::Err(err) => {
+                            panic!("failed to load pipeline #{i}, {err}");
+                        },
+                        _ => {
+                            all_loaded = false;
+                            break
+                        }
+                    }
                 }
 
                 if all_loaded {
