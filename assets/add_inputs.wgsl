@@ -45,7 +45,7 @@ fn add_inputs(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
         if all(action.pos == location_to_compare) {
             apply_action_at_location(action, location_to_write_at);
 
-            break
+            break;
         }
     }
 }

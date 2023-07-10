@@ -2,6 +2,7 @@ use bevy::{
     prelude::*,
     render::{
         RenderApp,
+        Render,
         RenderSet,
         render_graph::RenderGraph,
         extract_resource::ExtractResourcePlugin
@@ -23,20 +24,19 @@ pub(self) const WORKGROUP_SIZE: (u32, u32) = (8, 8);
 pub struct GameOfLifePlugin {}
 impl Plugin for GameOfLifePlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<images_holder::ImagesHolder>()
-            .add_plugin(ExtractResourcePlugin::<images_holder::ImagesHolder>::default())
-
+        app
+            .init_resource::<images_holder::ImagesHolder>()
             .init_resource::<actions_holder::ActionsHolder>()
-            .add_plugin(ExtractResourcePlugin::<actions_holder::ActionsHolder>::default())
-            .add_system(actions_holder::actions_holder_cleaner.in_set(RenderSet::Cleanup));
+            .add_plugins((
+                ExtractResourcePlugin::<images_holder::ImagesHolder>::default(),
+                ExtractResourcePlugin::<actions_holder::ActionsHolder>::default()
+            ))
+            .add_systems(PreUpdate, actions_holder::actions_holder_cleaner);
 
 
         let render_app = app.sub_app_mut(RenderApp);
-        render_app
-            .init_resource::<bind_groups::BindGroupLayouts>()
-            .init_resource::<pipeline::Pipeline>()
-            .add_system(bind_groups::queue_bind_groups.in_set(RenderSet::Queue));
 
+        render_app.add_systems(Render, bind_groups::queue_bind_groups.in_set(RenderSet::Queue));
 
         let mut render_graph = render_app.world.resource_mut::<RenderGraph>();
         render_graph.add_node(node::NODE_ID, node::Node::default());
@@ -46,5 +46,12 @@ impl Plugin for GameOfLifePlugin {
             node::NODE_ID,
             bevy::render::main_graph::node::CAMERA_DRIVER
         );
+    }
+
+    fn finish(&self, app: &mut App) {
+        let render_app = app.sub_app_mut(RenderApp);
+        render_app
+            .init_resource::<bind_groups::BindGroupLayouts>()
+            .init_resource::<pipeline::Pipeline>();
     }
 }

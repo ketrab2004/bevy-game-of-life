@@ -17,7 +17,7 @@ pub fn setup(
             ..default()
         },
         transform: Transform {
-            translation: Vec3::new(0., 0., 0.),
+            translation: Vec3::new(0., 0., 1.),
             ..default()
         },
         ..default()

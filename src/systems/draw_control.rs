@@ -32,7 +32,7 @@ pub fn draw_control(
     };
 
 
-    if keys.pressed(KeyCode::LAlt) {
+    if keys.pressed(KeyCode::AltLeft) {
         return
     }
 

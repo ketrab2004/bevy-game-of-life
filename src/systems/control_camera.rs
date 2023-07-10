@@ -18,7 +18,7 @@ pub fn control_camera(
     mut scroll_reader: EventReader<MouseWheel>
 ) {
     let delta = time.delta_seconds();
-    let ctrl_pressed = keys.pressed(KeyCode::LControl) || keys.pressed(KeyCode::RControl);
+    let ctrl_pressed = keys.pressed(KeyCode::ControlLeft) || keys.pressed(KeyCode::ControlRight);
 
     let window = windows.single();
 
@@ -49,7 +49,7 @@ pub fn control_camera(
 
         let smallest_axis = u32::min(window.physical_width(), window.physical_height()) as f32;
 
-        if (keys.pressed(KeyCode::LAlt) && buttons.pressed(MouseButton::Left))
+        if (keys.pressed(KeyCode::AltLeft) && buttons.pressed(MouseButton::Left))
             || buttons.pressed(MouseButton::Middle) {
             for ev in mouse_reader.iter() {
                 movement += (ev.delta * Vec2::new(-1., 1.)) / smallest_axis;
