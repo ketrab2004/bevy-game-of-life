@@ -18,6 +18,8 @@ color-eyre = "~0.6.2"
 rayon = "~1.7.0"
 strum = "~0.25.0"
 strum_macros = "~0.25.0"
+bytemuck = "~1.13.1"
+# std140 = "~0.2.6"
 bevy = "~0.11"
 # bevy_mod_debugdump = "~0.7.0"
 

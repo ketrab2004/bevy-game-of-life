@@ -1,15 +1,13 @@
 use bevy::{
     prelude::*,
-    render::{
-        render_resource::{
-            CachedComputePipelineId,
-            PipelineCache,
-            ComputePipelineDescriptor
-        }
+    render::render_resource::{
+        CachedComputePipelineId,
+        PipelineCache,
+        ComputePipelineDescriptor
     }
 };
 use std::borrow::Cow;
-use super::bind_groups::BindGroupLayouts;
+use super::bind_groups::{LayoutsHolder, LayoutHolder};
 
 
 #[derive(Resource, Debug)]
@@ -28,7 +26,7 @@ impl Pipeline {
 
 impl FromWorld for Pipeline {
     fn from_world(world: &mut World) -> Self {
-        let bind_group_layouts = world.get_resource::<BindGroupLayouts>().unwrap();
+        let bind_group_layouts = world.get_resource::<LayoutsHolder>().unwrap();
 
         let asset_server = world.resource::<AssetServer>();
 
@@ -41,9 +39,9 @@ impl FromWorld for Pipeline {
         let input_pipeline = pipeline_cache.queue_compute_pipeline(ComputePipelineDescriptor {
             label: Some(Cow::from("input pipeline")),
             layout: vec![
-                bind_group_layouts.images.clone(),
-                bind_group_layouts.current_image.clone(),
-                bind_group_layouts.actions.clone()
+                bind_group_layouts.images.get_bind_group_layout(),
+                bind_group_layouts.current_image.get_bind_group_layout(),
+                bind_group_layouts.actions.get_bind_group_layout()
             ],
             push_constant_ranges: Vec::new(),
             shader: input_shader,
@@ -54,8 +52,8 @@ impl FromWorld for Pipeline {
         let update_pipeline = pipeline_cache.queue_compute_pipeline(ComputePipelineDescriptor {
             label: Some(Cow::from("update pipeline")),
             layout: vec![
-                bind_group_layouts.images.clone(),
-                bind_group_layouts.current_image.clone()
+                bind_group_layouts.images.get_bind_group_layout(),
+                bind_group_layouts.current_image.get_bind_group_layout()
             ],
             push_constant_ranges: Vec::new(),
             shader: main_shader,

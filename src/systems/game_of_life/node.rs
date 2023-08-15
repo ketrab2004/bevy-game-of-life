@@ -18,11 +18,13 @@ use strum::{
     EnumCount,
     IntoEnumIterator
 };
+use crate::systems::game_of_life::bind_groups::GroupHolder;
+
 use super::{
     SIZE,
     WORKGROUP_SIZE,
     pipeline::Pipeline,
-    bind_groups::BindGroups,
+    bind_groups::GroupsHolder,
     images_holder::{
         ImagesHolder,
         ImagesHolderState
@@ -51,7 +53,7 @@ impl Default for Node {
     fn default() -> Self {
         Self {
             state: NodeState::default(),
-            timer: Timer::from_seconds(5., TimerMode::Repeating)
+            timer: Timer::from_seconds(0.01, TimerMode::Repeating)
         }
     }
 }
@@ -113,26 +115,29 @@ impl RenderGraphNode for Node {
             NodeState::Update => {
                 let pipeline_cache = world.resource::<PipelineCache>();
                 let pipeline = world.resource::<Pipeline>();
-                let bind_groups = world.resource::<BindGroups>();
+                let bind_groups = world.resource::<GroupsHolder>();
                 let images_holder = world.resource::<ImagesHolder>();
                 let actions_holder = world.resource::<ActionsHolder>();
 
 
-                #[warn(clippy::overly_complex_bool_expr)] //TODO fix issue with input pipeline and remove && false
-                if !actions_holder.actions.is_empty() && false {
-                    info!("executing input pipeline!  🖱️");
-                    let mut pass = render_context
-                        .command_encoder()
-                        .begin_compute_pass(&ComputePassDescriptor::default());
+                let command_encoder = render_context.command_encoder();
 
-                    pass.set_bind_group(0, &bind_groups.images, &[]);
-                    pass.set_bind_group(1, bind_groups.get_current_image_from_state(images_holder.state), &[]);
-                    pass.set_bind_group(2, &bind_groups.actions.bind_group, &[]);
+                let images_bind_group = &bind_groups.images.get_bind_group();
+                let current_image_bind_group = &bind_groups.get_current_image_from_state(images_holder.state);
+                let actions_bind_group = &bind_groups.actions.get_bind_group();
+
+                if !actions_holder.actions.is_empty() {
+                    info!("executing input pipeline!  🖱️");
+                    let mut pass = command_encoder.begin_compute_pass(&ComputePassDescriptor::default());
 
                     let input_pipeline = pipeline_cache
                         .get_compute_pipeline(pipeline.input_pipeline)
                         .unwrap();
                     pass.set_pipeline(input_pipeline);
+
+                    pass.set_bind_group(0, images_bind_group, &[]);
+                    pass.set_bind_group(1, current_image_bind_group, &[]);
+                    pass.set_bind_group(2, actions_bind_group, &[]);
 
                     pass.dispatch_workgroups(SIZE.0 / WORKGROUP_SIZE.0, SIZE.1 / WORKGROUP_SIZE.1, 1);
                 }
@@ -140,17 +145,15 @@ impl RenderGraphNode for Node {
 
                 if self.timer.just_finished() {
                     info!("executing update pipeline! ⬆️");
-                    let mut pass = render_context
-                        .command_encoder()
-                        .begin_compute_pass(&ComputePassDescriptor::default());
-
-                    pass.set_bind_group(0, &bind_groups.images, &[]);
-                    pass.set_bind_group(1, bind_groups.get_current_image_from_state(images_holder.state), &[]);
+                    let mut pass = command_encoder.begin_compute_pass(&ComputePassDescriptor::default());
 
                     let update_pipeline = pipeline_cache
                         .get_compute_pipeline(pipeline.update_pipeline)
                         .unwrap();
                     pass.set_pipeline(update_pipeline);
+
+                    pass.set_bind_group(0, images_bind_group, &[]);
+                    pass.set_bind_group(1, current_image_bind_group, &[]);
 
                     // for _ in 0..self.timer.times_finished_this_tick() {
                         //TODO update bind group 1 (current image) in loop

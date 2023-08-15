@@ -1,62 +1,54 @@
 use bevy::{
     prelude::*,
-    render::{
-        extract_resource::ExtractResource,
-        render_resource::{
-            AsBindGroup,
-            ShaderType,
-            ShaderSize,
-            encase::{
-                private::{
-                    Metadata,
-                    AlignmentValue,
-                    SizeValue,
-                    Writer,
-                    BufferMut
-                },
-                internal::WriteInto
-            }
-        }
-    }
+    render::extract_resource::ExtractResource
 };
 
 
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[repr(u32)]
+#[derive(Copy, Clone, Default, PartialEq, Eq, Debug)]
 pub enum ActionType {
+    #[default]
     Add = 0,
     Remove = 1
 }
-
-impl ShaderType for ActionType {
-    type ExtraMetadata = ();
-    const METADATA: Metadata<Self::ExtraMetadata> = Metadata {
-        alignment: AlignmentValue::new(u32::SHADER_SIZE.get()),
-        has_uniform_min_alignment: true,
-        min_size: SizeValue::from(u32::SHADER_SIZE),
-        extra: ()
-    };
+unsafe impl bytemuck::Contiguous for ActionType {
+    type Int = u32;
+    const MIN_VALUE: Self::Int = ActionType::Add as u32;
+    const MAX_VALUE: Self::Int = ActionType::Remove as u32;
 }
-impl ShaderSize for ActionType {}
+unsafe impl bytemuck::Pod for ActionType {}
+unsafe impl bytemuck::Zeroable for ActionType {}
 
-impl WriteInto for ActionType {
-    fn write_into<B>(&self, writer: &mut Writer<B>)
-        where B: BufferMut
-    {
-        writer.write(&(self.to_owned() as u32).to_be_bytes());
-    }
-}
+// impl ShaderType for ActionType {
+//     type ExtraMetadata = ();
+//     const METADATA: Metadata<Self::ExtraMetadata> = Metadata {
+//         alignment: AlignmentValue::new(u32::SHADER_SIZE.get()),
+//         has_uniform_min_alignment: true,
+//         min_size: SizeValue::from(u32::SHADER_SIZE),
+//         extra: ()
+//     };
+// }
+// impl ShaderSize for ActionType {}
+
+// impl WriteInto for ActionType {
+//     fn write_into<B>(&self, writer: &mut Writer<B>)
+//         where B: BufferMut
+//     {
+//         writer.write(&(self.to_owned() as u32).to_be_bytes());
+//     }
+// }
 
 
-#[derive(Clone, Debug, ShaderType)]
+#[repr(C)]
+#[derive(Copy, Clone, Debug, Default, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Action {
+    pub pos: Vec2,
     pub action: ActionType,
-    pub pos: Vec2
 }
 
 
-#[derive(Resource, ExtractResource, AsBindGroup, Clone, Default, Debug)]
+#[derive(Resource, ExtractResource, Clone, Default, Debug)]
 pub struct ActionsHolder {
-    #[storage(0, read_only, visibility(compute))]
     pub actions: Vec<Action>
 }
 
@@ -70,7 +62,8 @@ impl ActionsHolder {
     pub fn push(&mut self, typ: ActionType, pos: Vec2) {
         self.push_raw(Action {
             action: typ,
-            pos
+            pos,
+            // _padding: 0
         })
     }
 }

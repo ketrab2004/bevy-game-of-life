@@ -2,8 +2,6 @@ use bevy::{
     prelude::*,
     render::{
         RenderApp,
-        Render,
-        RenderSet,
         render_graph::RenderGraph,
         extract_resource::ExtractResourcePlugin
     }
@@ -35,8 +33,7 @@ impl Plugin for GameOfLifePlugin {
 
 
         let render_app = app.sub_app_mut(RenderApp);
-
-        render_app.add_systems(Render, bind_groups::queue_bind_groups.in_set(RenderSet::Queue));
+        render_app.add_plugins(bind_groups::BindGroupsPlugin {});
 
         let mut render_graph = render_app.world.resource_mut::<RenderGraph>();
         render_graph.add_node(node::NODE_ID, node::Node::default());
@@ -51,7 +48,7 @@ impl Plugin for GameOfLifePlugin {
     fn finish(&self, app: &mut App) {
         let render_app = app.sub_app_mut(RenderApp);
         render_app
-            .init_resource::<bind_groups::BindGroupLayouts>()
+            .init_resource::<bind_groups::LayoutsHolder>()
             .init_resource::<pipeline::Pipeline>();
     }
 }
